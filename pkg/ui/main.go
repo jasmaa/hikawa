@@ -28,9 +28,35 @@ func (p *Main) Ready() {
 	log.Info("Browser ready")
 }
 
+func (p *Main) OnSearchBarTextEntered(newText string) {
+	p.navigatePage()
+}
+
 func (p *Main) OnSearchButtonPressed() {
+	p.navigatePage()
+}
+
+func (p *Main) OnClassRegistered(e gdnative.ClassRegisteredEvent) {
+	// methods
+	e.RegisterMethod("_ready", "Ready")
+	e.RegisterMethod("_on_SearchButton_pressed", "OnSearchButtonPressed")
+	e.RegisterMethod("_on_SearchBar_text_entered", "OnSearchBarTextEntered")
+}
+
+func NewMainWithOwner(owner *gdnative.GodotObject) Main {
+	inst := gdnative.GetCustomClassInstanceWithOwner(owner).(*Main)
+	return *inst
+}
+
+func init() {
+	gdnative.RegisterInitCallback(func() {
+		gdnative.RegisterClass(&Main{})
+	})
+}
+
+func (p *Main) navigatePage() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
-	content := gdnative.NewRichTextLabelWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
+	content := gdnative.NewTextEditWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
 
 	r, err := gemini.ParseRequest(searchBar.GetText())
 	if err != nil {
@@ -57,21 +83,4 @@ func (p *Main) OnSearchButtonPressed() {
 	case <-time.After(3 * time.Second):
 		content.SetText("request timed out")
 	}
-}
-
-func (p *Main) OnClassRegistered(e gdnative.ClassRegisteredEvent) {
-	// methods
-	e.RegisterMethod("_ready", "Ready")
-	e.RegisterMethod("_on_SearchButton_pressed", "OnSearchButtonPressed")
-}
-
-func NewMainWithOwner(owner *gdnative.GodotObject) Main {
-	inst := gdnative.GetCustomClassInstanceWithOwner(owner).(*Main)
-	return *inst
-}
-
-func init() {
-	gdnative.RegisterInitCallback(func() {
-		gdnative.RegisterClass(&Main{})
-	})
 }
