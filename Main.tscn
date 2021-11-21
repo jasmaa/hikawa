@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://libs/Main.gdns" type="Script" id=1]
+
+[node name="Main" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SearchButton" type="Button" parent="."]
+margin_left = 910.264
+margin_top = 43.7649
+margin_right = 965.264
+margin_bottom = 63.765
+text = "Go!"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Content" type="RichTextLabel" parent="."]
+margin_left = 62.0
+margin_top = 88.0
+margin_right = 963.0
+margin_bottom = 563.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SearchBar" type="LineEdit" parent="."]
+margin_left = 66.0
+margin_top = 43.0
+margin_right = 888.0
+margin_bottom = 67.0
+text = "gemini://gemini.circumlunar.space"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="SearchButton" to="." method="_on_SearchButton_pressed"]

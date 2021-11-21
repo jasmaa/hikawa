@@ -1,6 +1,5 @@
 build:
-	rsrc -manifest main.manifest -o rsrc.syso
-	go build -ldflags="-H windowsgui"
+	go run mage.go -v build
 
 clean:
-	rm rsrc.syso *.exe
+	go run mage.go -v clean
