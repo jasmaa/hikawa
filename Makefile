@@ -3,3 +3,4 @@ build:
 
 clean:
 	go run mage.go -v clean
+	rm *.pck *.exe
