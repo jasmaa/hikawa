@@ -11,6 +11,8 @@ import (
 type Main struct {
 	gdnative.NodeImpl
 	gdnative.UserDataIdentifiableImpl
+
+	client gemini.Client
 }
 
 func (p *Main) ClassName() string {
@@ -25,6 +27,9 @@ func (p *Main) Init() {
 }
 
 func (p *Main) Ready() {
+	p.client = gemini.Client{
+		Timeout: 3 * time.Second,
+	}
 	log.Info("Browser ready")
 }
 
@@ -58,29 +63,8 @@ func (p *Main) navigatePage() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
 	content := gdnative.NewTextEditWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
 
-	r, err := gemini.ParseRequest(searchBar.GetText())
-	if err != nil {
-		content.SetText(err.Error())
-		return
-	}
+	newUrl, contentText := p.client.NavigatePage(searchBar.GetText())
 
-	textChan := make(chan string, 1)
-	go func() {
-		resp, err := r.Send()
-		if err != nil {
-			textChan <- err.Error()
-			return
-		}
-		if resp.Header.Status/10 == 2 {
-			textChan <- resp.Body
-		}
-		textChan <- ""
-	}()
-
-	select {
-	case res := <-textChan:
-		content.SetText(res)
-	case <-time.After(3 * time.Second):
-		content.SetText("request timed out")
-	}
+	content.SetText(contentText)
+	searchBar.SetText(newUrl)
 }
