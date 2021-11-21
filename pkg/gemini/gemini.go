@@ -82,6 +82,7 @@ func (r *Request) Send() (*Response, error) {
 	}
 
 	// Read status
+	// TODO: Fix status reads for responses without meta
 	rawstatus := make([]byte, 3)
 	_, err = io.ReadFull(conn, rawstatus)
 	if err != nil {

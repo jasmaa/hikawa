@@ -1,6 +1,7 @@
 package gemini
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -26,6 +27,9 @@ func (c *Client) NavigatePage(url string) (string, string) {
 				return
 			}
 			switch resp.Header.Status / 10 {
+			case 1:
+				// 1X Input
+				textChan <- "Input not supported yet by Hikawa"
 			case 2:
 				// 2X Success
 				textChan <- resp.Body
@@ -33,10 +37,33 @@ func (c *Client) NavigatePage(url string) (string, string) {
 			case 3:
 				// 3X Redirect
 				url = resp.Header.Meta
+			case 4:
+				// 4X Temporary Failure
+				textChan <- fmt.Sprintf(
+					"Temporary Failure (%d %s): %s",
+					resp.Header.Status,
+					statusCodeToMessage(resp.Header.Status),
+					resp.Header.Meta,
+				)
+			case 5:
+				// 5X Permanent Failure
+				textChan <- fmt.Sprintf(
+					"Permanent Failure (%d %s): %s",
+					resp.Header.Status,
+					statusCodeToMessage(resp.Header.Status),
+					resp.Header.Meta,
+				)
+			case 6:
+				// 6X Client Certificate Required
+				textChan <- fmt.Sprintf(
+					"Client Certificate Required (%d %s): %s",
+					resp.Header.Status,
+					statusCodeToMessage(resp.Header.Status),
+					resp.Header.Meta,
+				)
 			default:
-				// Else, display meta
-				textChan <- resp.Header.Meta
-				return
+				// Unrecognized status code
+				textChan <- fmt.Sprintf("Unrecognized Code (%d): %s", resp.Header.Status, resp.Header.Meta)
 			}
 		}
 	}()
