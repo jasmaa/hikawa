@@ -32,15 +32,19 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Content" type="TextEdit" parent="."]
+[node name="Content" type="RichTextLabel" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 20.0
 margin_top = 60.0
 margin_right = -20.0
 margin_bottom = -20.0
-readonly = true
-wrap_enabled = true
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [connection signal="text_entered" from="SearchBar" to="." method="_on_SearchBar_text_entered"]
 [connection signal="pressed" from="SearchButton" to="." method="_on_SearchButton_pressed"]

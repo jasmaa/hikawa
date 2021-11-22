@@ -104,7 +104,8 @@ func (r *Request) Send() (*Response, error) {
 	}
 
 	// Read body on 2X status
-	rawbody := buffer[beginIdx:endIdx]
+	rawbody := make([]byte, len(buffer[beginIdx:endIdx]))
+	copy(rawbody, buffer[beginIdx:endIdx])
 	n := 0
 	if status/10 == 2 {
 		for err != io.EOF {

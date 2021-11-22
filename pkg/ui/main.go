@@ -6,6 +6,7 @@ import (
 	"github.com/godot-go/godot-go/pkg/gdnative"
 	"github.com/godot-go/godot-go/pkg/log"
 	"github.com/jasmaa/hikawa/pkg/gemini"
+	"github.com/jasmaa/hikawa/pkg/gemtext"
 )
 
 type Main struct {
@@ -61,10 +62,11 @@ func init() {
 
 func (p *Main) navigatePage() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
-	content := gdnative.NewTextEditWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
+	content := gdnative.NewRichTextLabelWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
 
-	newUrl, contentText := p.client.NavigatePage(searchBar.GetText())
+	newUrl, contentGemtext := p.client.NavigatePage(searchBar.GetText())
+	contentBbcode := gemtext.ConvertToBbcode(contentGemtext)
 
-	content.SetText(contentText)
+	content.SetBbcode(contentBbcode)
 	searchBar.SetText(newUrl)
 }
