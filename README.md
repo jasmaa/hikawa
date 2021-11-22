@@ -1,6 +1,6 @@
 # Hikawa
 
-A simple Gemini graphical browser in Go.
+A simple Gemini graphical browser in Go and Godot.
 
 ## Development
 
