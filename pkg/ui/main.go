@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/godot-go/godot-go/pkg/gdnative"
@@ -64,9 +65,20 @@ func (p *Main) navigatePage() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
 	content := gdnative.NewRichTextLabelWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
 
-	newUrl, contentGemtext := p.client.NavigatePage(searchBar.GetText())
-	contentBbcode := gemtext.ConvertToBbcode(contentGemtext)
-
-	content.SetBbcode(contentBbcode)
-	searchBar.SetText(newUrl)
+	clientResp, err := p.client.NavigatePage(searchBar.GetText())
+	if err != nil {
+		content.SetBbcode(err.Error())
+	} else {
+		if clientResp.Response.Header.Status == gemini.STATUS_SUCCESS {
+			if clientResp.Response.Header.Meta == "text/gemini" {
+				contentBbcode := gemtext.ConvertToBbcode(clientResp.Response.Body)
+				content.SetBbcode(contentBbcode)
+			} else {
+				content.SetBbcode(fmt.Sprintf("cannot display MIME type: %s", clientResp.Response.Header.Meta))
+			}
+		} else {
+			content.SetBbcode(fmt.Sprintf("[%d] %s", clientResp.Response.Header.Status, clientResp.Response.Header.Meta))
+		}
+		searchBar.SetText(clientResp.Url)
+	}
 }

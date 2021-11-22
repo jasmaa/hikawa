@@ -12,7 +12,7 @@ var linkRe = regexp.MustCompile(`^=>\s*(?P<url>\S+)\s+(?P<text>[^\n]+)$`)
 var linkRe2 = regexp.MustCompile(`^=>\s*(?P<url>\S+)$`)
 var listBulletRe = regexp.MustCompile(`^\*\s(?P<text>[^\n]+)$`)
 var blockquoteRe = regexp.MustCompile(`^>(?P<text>[^\n]+)$`)
-var preformattedRe = regexp.MustCompile("^```(?P<alt>[^\n]*)$")
+var preformattedRe = regexp.MustCompile("^```(?P<alt>[^\\n]*)$")
 
 // ConvertToBbcode converts gemtext to bbcode.
 func ConvertToBbcode(text string) string {
