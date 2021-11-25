@@ -60,3 +60,4 @@ __meta__ = {
 
 [connection signal="text_entered" from="SearchBar" to="." method="_on_SearchBar_text_entered"]
 [connection signal="pressed" from="SearchButton" to="." method="_on_SearchButton_pressed"]
+[connection signal="meta_clicked" from="Content" to="." method="_on_Content_meta_clicked"]
