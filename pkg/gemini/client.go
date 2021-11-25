@@ -2,6 +2,7 @@ package gemini
 
 import (
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -12,8 +13,9 @@ type Client struct {
 
 // ClientResponse is a high-level client response.
 type ClientResponse struct {
-	Response *Response
-	Url      string
+	Response  *Response
+	Url       string
+	MimeTypes map[string]bool
 }
 
 // NavigatePage gets the new url and page content pointed at by `url`.
@@ -73,9 +75,17 @@ func (c *Client) NavigatePage(url string) (*ClientResponse, error) {
 		if respRes.Err != nil {
 			return nil, respRes.Err
 		}
+		mimeTypes := make(map[string]bool)
+		if respRes.Response.Header.Status == 20 {
+			// Parse MIME types from meta
+			for _, mime := range strings.Split(respRes.Response.Header.Meta, ";") {
+				mimeTypes[mime] = true
+			}
+		}
 		return &ClientResponse{
-			Response: respRes.Response,
-			Url:      url,
+			Response:  respRes.Response,
+			Url:       url,
+			MimeTypes: mimeTypes,
 		}, nil
 	case <-time.After(c.Timeout):
 		return nil, errors.New("request timed out")

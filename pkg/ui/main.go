@@ -108,7 +108,7 @@ func (p *Main) navigatePage(url string) string {
 		return url
 	} else {
 		if clientResp.Response.Header.Status == gemini.STATUS_SUCCESS {
-			if clientResp.Response.Header.Meta == "text/gemini" {
+			if _, ok := clientResp.MimeTypes["text/gemini"]; ok {
 				contentBbcode := gemtext.ConvertToBbcode(clientResp.Response.Body)
 				content.SetBbcode(contentBbcode)
 			} else {
