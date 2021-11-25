@@ -44,7 +44,7 @@ func ConvertToBbcode(text string) string {
 			bbcode = blockquoteRe.ReplaceAllString(gemtext, "[center]${text}[/center]")
 		} else if preformattedRe.MatchString(gemtext) {
 			// Preformat
-			if isPreformatMode {
+			if !isPreformatMode {
 				bbcode = "[code]"
 			} else {
 				bbcode = "[/code]"
