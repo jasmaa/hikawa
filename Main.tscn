@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://libs/Main.gdns" type="Script" id=1]
 [ext_resource path="res://sayohina.png" type="Texture" id=2]
+[ext_resource path="res://assets/fonts/Ubuntu/UbuntuR.tres" type="DynamicFont" id=3]
+[ext_resource path="res://assets/fonts/Ubuntu/UbuntuMonoR.tres" type="DynamicFont" id=4]
 
 [node name="Main" type="Control"]
 anchor_right = 1.0
@@ -27,6 +29,7 @@ anchor_right = 1.0
 margin_left = 20.0
 margin_top = 20.0
 margin_right = -100.0
+custom_fonts/font = ExtResource( 3 )
 text = "gemini://gemini.circumlunar.space"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -39,6 +42,7 @@ margin_left = -80.0
 margin_top = 20.0
 margin_right = -20.0
 margin_bottom = 44.0
+custom_fonts/font = ExtResource( 3 )
 text = "Go!"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -52,6 +56,8 @@ margin_top = 60.0
 margin_right = -20.0
 margin_bottom = -20.0
 focus_mode = 2
+custom_fonts/mono_font = ExtResource( 4 )
+custom_fonts/normal_font = ExtResource( 3 )
 bbcode_enabled = true
 selection_enabled = true
 __meta__ = {
