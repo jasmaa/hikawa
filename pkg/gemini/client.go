@@ -2,6 +2,7 @@ package gemini
 
 import (
 	"errors"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -19,7 +20,7 @@ type ClientResponse struct {
 }
 
 // NavigatePage gets the new url and page content pointed at by `url`.
-func (c *Client) NavigatePage(url string) (*ClientResponse, error) {
+func (c *Client) NavigatePage(rawurl string) (*ClientResponse, error) {
 	type result struct {
 		Response *Response
 		Err      error
@@ -28,7 +29,7 @@ func (c *Client) NavigatePage(url string) (*ClientResponse, error) {
 
 	go func() {
 		for {
-			r, err := ParseRequest(url)
+			r, err := ParseRequest(rawurl)
 			if err != nil {
 				resChan <- result{Err: err}
 				return
@@ -51,7 +52,16 @@ func (c *Client) NavigatePage(url string) (*ClientResponse, error) {
 				return
 			case 3:
 				// 3X Redirect
-				url = resp.Header.Meta
+				u, _ := url.ParseRequestURI(resp.Header.Meta)
+				if len(u.Scheme) == 0 {
+					// Relative url
+					prevUrl, _ := url.ParseRequestURI(rawurl)
+					prevUrl.Path = resp.Header.Meta
+					rawurl = prevUrl.String()
+				} else {
+					// Absolute url
+					rawurl = resp.Header.Meta
+				}
 			case 4:
 				// 4X Temporary Failure
 				resChan <- result{Response: resp}
@@ -84,7 +94,7 @@ func (c *Client) NavigatePage(url string) (*ClientResponse, error) {
 		}
 		return &ClientResponse{
 			Response:  respRes.Response,
-			Url:       url,
+			Url:       rawurl,
 			MimeTypes: mimeTypes,
 		}, nil
 	case <-time.After(c.Timeout):
