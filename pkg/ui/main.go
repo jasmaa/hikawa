@@ -8,6 +8,7 @@ import (
 
 	"github.com/godot-go/godot-go/pkg/gdnative"
 	"github.com/godot-go/godot-go/pkg/log"
+	"github.com/jasmaa/hikawa/pkg/browsing"
 	"github.com/jasmaa/hikawa/pkg/gemini"
 	"github.com/jasmaa/hikawa/pkg/gemtext"
 )
@@ -16,8 +17,8 @@ type Main struct {
 	gdnative.NodeImpl
 	gdnative.UserDataIdentifiableImpl
 
-	client     gemini.Client
-	currentUrl string
+	client  gemini.Client
+	history browsing.History
 }
 
 func (p *Main) ClassName() string {
@@ -35,22 +36,26 @@ func (p *Main) Ready() {
 	p.client = gemini.Client{
 		Timeout: 3 * time.Second,
 	}
+	p.history = browsing.NewHistory()
+	p.setNavigationButtons()
 	log.Info("Browser ready")
 }
 
 func (p *Main) OnSearchBarTextEntered(newText string) {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
 	newUrl := p.navigatePage(searchBar.GetText())
-	p.currentUrl = newUrl
+	p.history.Push(newUrl)
 	searchBar.SetText(newUrl)
 	searchBar.ReleaseFocus()
+	p.setNavigationButtons()
 }
 
 func (p *Main) OnSearchButtonPressed() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
 	newUrl := p.navigatePage(searchBar.GetText())
-	p.currentUrl = newUrl
+	p.history.Push(newUrl)
 	searchBar.SetText(newUrl)
+	p.setNavigationButtons()
 }
 
 func (p *Main) OnContentMetaClicked(meta string) {
@@ -62,7 +67,7 @@ func (p *Main) OnContentMetaClicked(meta string) {
 	}
 	var targetUrl string
 	if len(target.Scheme) == 0 {
-		u, _ := url.Parse(p.currentUrl)
+		u, _ := url.Parse(p.history.GetCurrentUrl())
 		u.Path = path.Join(u.Path, meta)
 		targetUrl = u.String()
 	} else {
@@ -75,8 +80,27 @@ func (p *Main) OnContentMetaClicked(meta string) {
 	}
 
 	newUrl := p.navigatePage(targetUrl)
-	p.currentUrl = newUrl
+	p.history.Push(newUrl)
 	searchBar.SetText(newUrl)
+	p.setNavigationButtons()
+}
+
+func (p *Main) OnBackButtonPressed() {
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+
+	p.history.GoBack()
+	newUrl := p.navigatePage(p.history.GetCurrentUrl())
+	searchBar.SetText(newUrl)
+	p.setNavigationButtons()
+}
+
+func (p *Main) OnForwardButtonPressed() {
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+
+	p.history.GoForward()
+	newUrl := p.navigatePage(p.history.GetCurrentUrl())
+	searchBar.SetText(newUrl)
+	p.setNavigationButtons()
 }
 
 func (p *Main) OnClassRegistered(e gdnative.ClassRegisteredEvent) {
@@ -85,6 +109,8 @@ func (p *Main) OnClassRegistered(e gdnative.ClassRegisteredEvent) {
 	e.RegisterMethod("_on_SearchButton_pressed", "OnSearchButtonPressed")
 	e.RegisterMethod("_on_SearchBar_text_entered", "OnSearchBarTextEntered")
 	e.RegisterMethod("_on_Content_meta_clicked", "OnContentMetaClicked")
+	e.RegisterMethod("_on_BackButton_pressed", "OnBackButtonPressed")
+	e.RegisterMethod("_on_ForwardButton_pressed", "OnForwardButtonPressed")
 }
 
 func NewMainWithOwner(owner *gdnative.GodotObject) Main {
@@ -119,4 +145,11 @@ func (p *Main) navigatePage(url string) string {
 		}
 		return clientResp.Url
 	}
+}
+
+func (p *Main) setNavigationButtons() {
+	backButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("BackButton")).GetOwnerObject())
+	backButton.SetDisabled(!p.history.CanGoBack())
+	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("ForwardButton")).GetOwnerObject())
+	forwardButton.SetDisabled(!p.history.CanGoForward())
 }
