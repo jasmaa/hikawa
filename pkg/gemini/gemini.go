@@ -88,23 +88,29 @@ func (r *Request) Send() (*Response, error) {
 // ReadResponse reads Response from connection reader.
 func ReadResponse(conn io.Reader) (*Response, error) {
 	// Read status
-	// TODO: Fix status reads for responses without meta
-	rawstatus := make([]byte, 3)
-	_, err := io.ReadFull(conn, rawstatus)
+	buffer := make([]byte, 2)
+	_, err := io.ReadFull(conn, buffer)
 	if err != nil {
 		return nil, err
 	}
-	if rawstatus[2] != 0x20 {
-		return nil, errors.New("malformed response header")
-	}
-	status, err := strconv.Atoi(string(rawstatus[:2]))
+	status, err := strconv.Atoi(string(buffer[:2]))
 	if err != nil {
 		return nil, err
 	}
 
-	// Read meta
-	buffer := make([]byte, 1024)
-	rawmeta, beginIdx, endIdx, err := readMeta(conn, buffer)
+	buffer = make([]byte, 1)
+	_, err = io.ReadFull(conn, buffer)
+	if err != nil {
+		return nil, err
+	}
+	if buffer[0] != 0x20 {
+		// TODO: Fix status reads for responses without meta
+		return nil, errors.New("no meta found")
+	}
+
+	// Read meta, meta (1024) + CRLF (2)
+	buffer = make([]byte, 1026)
+	meta, beginIdx, endIdx, err := readMeta(conn, buffer)
 	if err != nil {
 		return nil, err
 	}
@@ -123,31 +129,20 @@ func ReadResponse(conn io.Reader) (*Response, error) {
 	return &Response{
 		Header: ResponseHeader{
 			Status: status,
-			Meta:   string(rawmeta),
+			Meta:   meta,
 		},
 		Body: string(rawbody),
 	}, nil
 }
 
-func readMeta(conn io.Reader, buffer []byte) ([]byte, int, int, error) {
-	output := make([]byte, 0)
-	var err error
-	var idx, n int
-	clrfFound := false
-	for !clrfFound {
-		n, err = io.ReadAtLeast(conn, buffer, 2)
-		if err != nil {
-			return nil, 0, 0, err
+func readMeta(conn io.Reader, buffer []byte) (string, int, int, error) {
+	n, _ := io.ReadFull(conn, buffer)
+	var idx int
+	for idx = 1; idx < n; idx++ {
+		if buffer[idx-1] == 0x0D && buffer[idx] == 0x0A {
+			meta := string(buffer[:idx-1])
+			return meta, idx + 1, n, nil
 		}
-		idx = 0
-		for idx < n {
-			if buffer[idx] == 0x0D && buffer[idx+1] == 0x0A {
-				clrfFound = true
-				break
-			}
-			idx++
-		}
-		output = append(output, buffer[:idx]...)
 	}
-	return output, idx + 2, n, nil
+	return "", -1, -1, errors.New("meta greater than 1024 bytes")
 }
