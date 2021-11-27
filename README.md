@@ -9,3 +9,9 @@ A simple Gemini graphical browser in Go and Godot.
 - Set `GODOT_BIN` to Godot executable and ensure Godot executable is in path.
 - Build with `make`.
 - Run Godot in directory.
+
+## Testing
+
+```
+make test
+```

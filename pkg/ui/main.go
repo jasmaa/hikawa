@@ -67,7 +67,11 @@ func (p *Main) OnContentMetaClicked(meta string) {
 	}
 	var targetUrl string
 	if len(target.Scheme) == 0 {
-		u, _ := url.Parse(p.history.GetCurrentUrl())
+		currentUrl, err := p.history.GetCurrentUrl()
+		if err != nil {
+			return
+		}
+		u, _ := url.Parse(currentUrl)
 		u.Path = path.Join(u.Path, meta)
 		targetUrl = u.String()
 	} else {
@@ -88,17 +92,26 @@ func (p *Main) OnContentMetaClicked(meta string) {
 func (p *Main) OnBackButtonPressed() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
 
-	p.history.GoBack()
-	newUrl := p.navigatePage(p.history.GetCurrentUrl())
+	err := p.history.GoBack()
+	if err != nil {
+		return
+	}
+	currentUrl, _ := p.history.GetCurrentUrl()
+	newUrl := p.navigatePage(currentUrl)
 	searchBar.SetText(newUrl)
 	p.setNavigationButtons()
+
 }
 
 func (p *Main) OnForwardButtonPressed() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
 
-	p.history.GoForward()
-	newUrl := p.navigatePage(p.history.GetCurrentUrl())
+	err := p.history.GoForward()
+	if err != nil {
+		return
+	}
+	currentUrl, _ := p.history.GetCurrentUrl()
+	newUrl := p.navigatePage(currentUrl)
 	searchBar.SetText(newUrl)
 	p.setNavigationButtons()
 }

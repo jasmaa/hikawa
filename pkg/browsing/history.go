@@ -1,5 +1,7 @@
 package browsing
 
+import "errors"
+
 // History maintains a double-linked list of pages visited.
 type History struct {
 	currentNode *historyNode
@@ -18,8 +20,11 @@ func NewHistory() History {
 }
 
 // GetCurrentUrl gets the url of the current page.
-func (h *History) GetCurrentUrl() string {
-	return h.currentNode.Url
+func (h *History) GetCurrentUrl() (string, error) {
+	if h.currentNode == nil {
+		return "", errors.New("history is empty")
+	}
+	return h.currentNode.Url, nil
 }
 
 // CanGoBack checks if there is a previous page.
@@ -33,17 +38,21 @@ func (h *History) CanGoForward() bool {
 }
 
 // GoBack moves the current page to the previous page.
-func (h *History) GoBack() {
-	if h.CanGoBack() {
-		h.currentNode = h.currentNode.Previous
+func (h *History) GoBack() error {
+	if !h.CanGoBack() {
+		return errors.New("no previous page")
 	}
+	h.currentNode = h.currentNode.Previous
+	return nil
 }
 
 // GoForward moves the current page to the next page.
-func (h *History) GoForward() {
-	if h.CanGoForward() {
-		h.currentNode = h.currentNode.Next
+func (h *History) GoForward() error {
+	if !h.CanGoForward() {
+		return errors.New("no next page")
 	}
+	h.currentNode = h.currentNode.Next
+	return nil
 }
 
 // Push pushes and moves the current page to the provided url.

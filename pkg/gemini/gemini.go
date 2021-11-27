@@ -49,7 +49,7 @@ func ParseRequest(rawurl string) (*Request, error) {
 	if len(hostport) == 2 {
 		port = hostport[1]
 	} else {
-		port = "1985"
+		port = "1965"
 	}
 
 	// Set path
@@ -65,12 +65,12 @@ func ParseRequest(rawurl string) (*Request, error) {
 	}, nil
 }
 
-// Send executes the Request.
+// Send executes the Request and returns a Response.
 func (r *Request) Send() (*Response, error) {
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
 	}
-	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%s", r.Host, "1965"), conf)
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%s", r.Host, r.Port), conf)
 	if err != nil {
 		return nil, err
 	}
@@ -81,10 +81,16 @@ func (r *Request) Send() (*Response, error) {
 		return nil, err
 	}
 
+	resp, err := ReadResponse(conn)
+	return resp, err
+}
+
+// ReadResponse reads Response from connection reader.
+func ReadResponse(conn io.Reader) (*Response, error) {
 	// Read status
 	// TODO: Fix status reads for responses without meta
 	rawstatus := make([]byte, 3)
-	_, err = io.ReadFull(conn, rawstatus)
+	_, err := io.ReadFull(conn, rawstatus)
 	if err != nil {
 		return nil, err
 	}
