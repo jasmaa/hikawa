@@ -13,6 +13,8 @@ import (
 	"github.com/jasmaa/hikawa/pkg/gemtext"
 )
 
+const VERSION = "0.1.0"
+
 type Main struct {
 	gdnative.NodeImpl
 	gdnative.UserDataIdentifiableImpl
@@ -38,11 +40,13 @@ func (p *Main) Ready() {
 	}
 	p.history = browsing.NewHistory()
 	p.setNavigationButtons()
+	versionLabel := gdnative.NewLabelWithOwner(p.GetNode(gdnative.NewNodePath("StatusPanel/VersionLabel")).GetOwnerObject())
+	versionLabel.SetText(fmt.Sprintf("v%s", VERSION))
 	log.Info("Browser ready")
 }
 
 func (p *Main) OnSearchBarTextEntered(newText string) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
 	newUrl := p.navigatePage(searchBar.GetText())
 	p.history.Push(newUrl)
 	searchBar.SetText(newUrl)
@@ -51,7 +55,7 @@ func (p *Main) OnSearchBarTextEntered(newText string) {
 }
 
 func (p *Main) OnSearchButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
 	newUrl := p.navigatePage(searchBar.GetText())
 	p.history.Push(newUrl)
 	searchBar.SetText(newUrl)
@@ -59,7 +63,7 @@ func (p *Main) OnSearchButtonPressed() {
 }
 
 func (p *Main) OnContentMetaClicked(meta string) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
 
 	target, err := url.Parse(meta)
 	if err != nil {
@@ -90,7 +94,7 @@ func (p *Main) OnContentMetaClicked(meta string) {
 }
 
 func (p *Main) OnBackButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
 
 	err := p.history.GoBack()
 	if err != nil {
@@ -104,7 +108,7 @@ func (p *Main) OnBackButtonPressed() {
 }
 
 func (p *Main) OnForwardButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("SearchBar")).GetOwnerObject())
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
 
 	err := p.history.GoForward()
 	if err != nil {
@@ -161,8 +165,8 @@ func (p *Main) navigatePage(url string) string {
 }
 
 func (p *Main) setNavigationButtons() {
-	backButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("BackButton")).GetOwnerObject())
+	backButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/BackButton")).GetOwnerObject())
 	backButton.SetDisabled(!p.history.CanGoBack())
-	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("ForwardButton")).GetOwnerObject())
+	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/ForwardButton")).GetOwnerObject())
 	forwardButton.SetDisabled(!p.history.CanGoForward())
 }
