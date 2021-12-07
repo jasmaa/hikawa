@@ -23,13 +23,13 @@ func ConvertToBbcode(text string) string {
 		bbcode := gemtext
 		if !isPreformatMode && heading3Re.MatchString(gemtext) {
 			// Heading 3
-			bbcode = heading3Re.ReplaceAllString(gemtext, "[color=green]${text}[/color]")
+			bbcode = heading3Re.ReplaceAllString(gemtext, "[font=res://assets/fonts/Ubuntu/UbuntuR_H3.tres]${text}[/font]")
 		} else if !isPreformatMode && heading2Re.MatchString(gemtext) {
 			// Heading 2
-			bbcode = heading2Re.ReplaceAllString(gemtext, "[color=blue]${text}[/color]")
+			bbcode = heading2Re.ReplaceAllString(gemtext, "[font=res://assets/fonts/Ubuntu/UbuntuR_H2.tres]${text}[/font]")
 		} else if !isPreformatMode && heading1Re.MatchString(gemtext) {
 			// Heading 1
-			bbcode = heading1Re.ReplaceAllString(gemtext, "[color=red]${text}[/color]")
+			bbcode = heading1Re.ReplaceAllString(gemtext, "[font=res://assets/fonts/Ubuntu/UbuntuR_H1.tres]${text}[/font]")
 		} else if !isPreformatMode && linkRe.MatchString(gemtext) {
 			// Link with name
 			bbcode = linkRe.ReplaceAllString(gemtext, "[url=${url}]${text}[/url]")
