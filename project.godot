@@ -13,6 +13,8 @@ config_version=4
 config/name="Hikawa"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
+config/macos_native_icon="res://docs/icon.icns"
+config/windows_native_icon="res://docs/icon.ico"
 
 [display]
 
