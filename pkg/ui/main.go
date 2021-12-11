@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"net/url"
-	"path"
 	"time"
 
 	"github.com/godot-go/godot-go/pkg/gdnative"
@@ -64,33 +63,13 @@ func (p *Main) OnSearchButtonPressed() {
 func (p *Main) OnContentMetaClicked(meta string) {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
 
-	target, err := url.Parse(meta)
+	currentUrl, err := p.history.GetCurrentUrl()
 	if err != nil {
 		return
 	}
-	var targetUrl string
-	if len(target.Scheme) == 0 {
-		currentUrl, err := p.history.GetCurrentUrl()
-		if err != nil {
-			return
-		}
-		u, _ := url.Parse(currentUrl)
-		if len(target.Path) > 0 && target.Path[0] == '/' {
-			// Root url
-			u.Path = target.Path
-		} else {
-			// Local url
-			u.Path = path.Join(u.Path, target.Path)
-		}
-		u.RawQuery = target.RawQuery
-		targetUrl = u.String()
-	} else {
-		switch target.Scheme {
-		case "gemini":
-			targetUrl = meta
-		default:
-			return
-		}
+	targetUrl, err := gemini.NextUrl(currentUrl, meta)
+	if err != nil {
+		return
 	}
 
 	newUrl := p.navigatePage(targetUrl, true)

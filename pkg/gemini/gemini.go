@@ -30,6 +30,10 @@ func Request(requestUrl string) (*Response, error) {
 	}
 	u.RawQuery = url.PathEscape(u.RawQuery)
 
+	if u.Scheme != "gemini" {
+		return nil, errors.New("scheme was not gemini")
+	}
+
 	var host, port string
 	hostport := strings.Split(u.Host, ":")
 	if len(hostport) < 1 {
