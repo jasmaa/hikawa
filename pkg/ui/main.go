@@ -47,16 +47,16 @@ func (p *Main) Ready() {
 
 func (p *Main) OnSearchBarTextEntered(newText string) {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	newurl := p.navigatePage(searchBar.GetText(), true)
-	searchBar.SetText(newurl)
+	newUrl := p.navigatePage(searchBar.GetText(), true)
+	searchBar.SetText(newUrl)
 	searchBar.ReleaseFocus()
 	p.setNavigationButtons()
 }
 
 func (p *Main) OnSearchButtonPressed() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	newurl := p.navigatePage(searchBar.GetText(), true)
-	searchBar.SetText(newurl)
+	newUrl := p.navigatePage(searchBar.GetText(), true)
+	searchBar.SetText(newUrl)
 	searchBar.ReleaseFocus()
 	p.setNavigationButtons()
 }
@@ -86,8 +86,8 @@ func (p *Main) OnContentMetaClicked(meta string) {
 		}
 	}
 
-	newurl := p.navigatePage(targetUrl, true)
-	searchBar.SetText(newurl)
+	newUrl := p.navigatePage(targetUrl, true)
+	searchBar.SetText(newUrl)
 	p.setNavigationButtons()
 }
 
@@ -99,8 +99,8 @@ func (p *Main) OnBackButtonPressed() {
 		return
 	}
 	currentUrl, _ := p.history.GetCurrentUrl()
-	newurl := p.navigatePage(currentUrl, false)
-	searchBar.SetText(newurl)
+	newUrl := p.navigatePage(currentUrl, false)
+	searchBar.SetText(newUrl)
 	p.setNavigationButtons()
 }
 
