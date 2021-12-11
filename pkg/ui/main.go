@@ -75,7 +75,9 @@ func (p *Main) OnContentMetaClicked(meta string) {
 			return
 		}
 		u, _ := url.Parse(currentUrl)
-		u.Path = path.Join(u.Path, meta)
+		metaUrl, _ := url.Parse(meta)
+		u.Path = path.Join(u.Path, metaUrl.Path)
+		u.RawQuery = metaUrl.RawQuery
 		targetUrl = u.String()
 	} else {
 		switch target.Scheme {
