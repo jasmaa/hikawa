@@ -29,12 +29,7 @@ func (c *Client) NavigatePage(rawurl string) (*ClientResponse, error) {
 
 	go func() {
 		for {
-			r, err := ParseRequest(rawurl)
-			if err != nil {
-				resChan <- result{Err: err}
-				return
-			}
-			resp, err := r.Send()
+			resp, err := Request(rawurl)
 			if err != nil {
 				resChan <- result{Err: err}
 				return

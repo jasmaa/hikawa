@@ -10,14 +10,6 @@ import (
 	"strings"
 )
 
-// Request is a Gemini request.
-type Request struct {
-	Host  string
-	Port  string
-	Path  string
-	Query string
-}
-
 // ResponseHeader is a Gemini response header.
 type ResponseHeader struct {
 	Status int
@@ -30,62 +22,36 @@ type Response struct {
 	Body   string
 }
 
-// ParseRequest parses a URL into a Request.
-func ParseRequest(rawurl string) (*Request, error) {
-	var host, port, path string
+// Request requests with a url and returns a Response.
+func Request(requestUrl string) (*Response, error) {
 
-	u, err := url.ParseRequestURI(rawurl)
+	u, err := url.ParseRequestURI(requestUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	// Validate scheme
-	if u.Scheme != "gemini" {
-		return nil, errors.New("scheme was not `gemini`")
-	}
-
-	// Set host and port
+	var host, port string
 	hostport := strings.Split(u.Host, ":")
+	if len(hostport) < 1 {
+		return nil, errors.New("no hostname provided")
+	}
 	host = hostport[0]
-	if len(hostport) == 2 {
+	if len(hostport) > 1 {
 		port = hostport[1]
 	} else {
 		port = "1965"
 	}
 
-	// Set path
-	path = u.Path
-	if len(u.Path) == 0 {
-		path = "/"
-	}
-
-	return &Request{
-		Host:  host,
-		Port:  port,
-		Path:  path,
-		Query: u.RawQuery, // TODO: encode query
-	}, nil
-}
-
-// Send executes the Request and returns a Response.
-func (r *Request) Send() (*Response, error) {
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
 	}
-	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%s", r.Host, r.Port), conf)
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%s", host, port), conf)
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 
-	var rawurl string
-	if len(r.Query) == 0 {
-		rawurl = fmt.Sprintf("gemini://%s%s\r\n", r.Host, r.Path)
-	} else {
-		rawurl = fmt.Sprintf("gemini://%s%s?%s\r\n", r.Host, r.Path, r.Query)
-	}
-
-	_, err = conn.Write([]byte(rawurl))
+	_, err = conn.Write([]byte(u.String() + "\r\n"))
 	if err != nil {
 		return nil, err
 	}

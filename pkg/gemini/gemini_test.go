@@ -10,26 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestParseRequestNoSubpath tests request parsing for url without subpath.
-func TestParseRequestNoSubpath(t *testing.T) {
-	r, err := gemini.ParseRequest("gemini://example.com")
-	if assert.Nil(t, err) {
-		assert.Equal(t, "example.com", r.Host)
-		assert.Equal(t, "1965", r.Port)
-		assert.Equal(t, "/", r.Path)
-	}
-}
-
-// TestParseRequestSubpath tests request parsing for url with subpath.
-func TestParseRequestSubpath(t *testing.T) {
-	r, err := gemini.ParseRequest("gemini://example.com/foo/bar/page.gmi")
-	if assert.Nil(t, err) {
-		assert.Equal(t, "example.com", r.Host)
-		assert.Equal(t, "1965", r.Port)
-		assert.Equal(t, "/foo/bar/page.gmi", r.Path)
-	}
-}
-
 // TestReadResponseSuccess tests reading successful response.
 func TestReadResponseSuccess(t *testing.T) {
 	status := gemini.STATUS_SUCCESS
