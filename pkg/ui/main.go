@@ -125,8 +125,9 @@ func (p *Main) OnSubmitButtonPressed() {
 	promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
 
 	inputPopup.Hide()
-	// TODO: parse query
-	newUrl := p.navigatePage(fmt.Sprintf("%s?%s", searchBar.GetText(), promptBar.GetText()), true)
+	u, _ := url.Parse(searchBar.GetText())
+	u.RawQuery = promptBar.GetText()
+	newUrl := p.navigatePage(u.String(), true)
 	searchBar.SetText(newUrl)
 	p.setNavigationButtons()
 }
@@ -137,8 +138,9 @@ func (p *Main) OnPromptBarTextEntered(newText string) {
 	promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
 
 	inputPopup.Hide()
-	// TODO: parse query
-	newUrl := p.navigatePage(fmt.Sprintf("%s?%s", searchBar.GetText(), promptBar.GetText()), true)
+	u, _ := url.Parse(searchBar.GetText())
+	u.RawQuery = promptBar.GetText()
+	newUrl := p.navigatePage(u.String(), true)
 	searchBar.SetText(newUrl)
 	p.setNavigationButtons()
 }
