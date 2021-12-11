@@ -12,9 +12,10 @@ import (
 
 // Request is a Gemini request.
 type Request struct {
-	Host string
-	Port string
-	Path string
+	Host  string
+	Port  string
+	Path  string
+	Query string
 }
 
 // ResponseHeader is a Gemini response header.
@@ -59,9 +60,10 @@ func ParseRequest(rawurl string) (*Request, error) {
 	}
 
 	return &Request{
-		Host: host,
-		Port: port,
-		Path: path,
+		Host:  host,
+		Port:  port,
+		Path:  path,
+		Query: u.RawQuery, // TODO: encode query
 	}, nil
 }
 
@@ -76,7 +78,14 @@ func (r *Request) Send() (*Response, error) {
 	}
 	defer conn.Close()
 
-	_, err = conn.Write([]byte(fmt.Sprintf("gemini://%s%s\r\n", r.Host, r.Path)))
+	var rawurl string
+	if len(r.Query) == 0 {
+		rawurl = fmt.Sprintf("gemini://%s%s\r\n", r.Host, r.Path)
+	} else {
+		rawurl = fmt.Sprintf("gemini://%s%s?%s\r\n", r.Host, r.Path, r.Query)
+	}
+
+	_, err = conn.Write([]byte(rawurl))
 	if err != nil {
 		return nil, err
 	}

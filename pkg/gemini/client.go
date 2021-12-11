@@ -42,10 +42,7 @@ func (c *Client) NavigatePage(rawurl string) (*ClientResponse, error) {
 			switch resp.Header.Status / 10 {
 			case 1:
 				// 1X Input
-				resChan <- result{
-					Response: resp,
-					Err:      errors.New("hikawa does not support input yet"),
-				}
+				resChan <- result{Response: resp}
 			case 2:
 				// 2X Success
 				resChan <- result{Response: resp}

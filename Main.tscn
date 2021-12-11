@@ -118,8 +118,60 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="InputPopup" type="Popup" parent="."]
+visible = true
+margin_right = 400.0
+margin_bottom = 300.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BG" type="Panel" parent="InputPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Question" type="Label" parent="InputPopup"]
+anchor_right = 1.0
+margin_left = 20.0
+margin_top = 70.0
+margin_right = -20.0
+text = "This is text"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PromptBar" type="LineEdit" parent="InputPopup"]
+anchor_right = 1.0
+margin_left = 20.0
+margin_top = 90.0
+margin_right = -100.0
+margin_bottom = 110.0
+custom_fonts/font = ExtResource( 3 )
+text = "gemini://gemini.circumlunar.space"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SubmitButton" type="Button" parent="InputPopup"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -80.0
+margin_top = 90.0
+margin_right = -20.0
+margin_bottom = 110.0
+custom_fonts/font = ExtResource( 3 )
+text = "Submit"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [connection signal="text_entered" from="NavPanel/SearchBar" to="." method="_on_SearchBar_text_entered"]
 [connection signal="pressed" from="NavPanel/SearchButton" to="." method="_on_SearchButton_pressed"]
 [connection signal="pressed" from="NavPanel/BackButton" to="." method="_on_BackButton_pressed"]
 [connection signal="pressed" from="NavPanel/ForwardButton" to="." method="_on_ForwardButton_pressed"]
 [connection signal="meta_clicked" from="Content" to="." method="_on_Content_meta_clicked"]
+[connection signal="text_entered" from="InputPopup/PromptBar" to="." method="_on_PromptBar_text_entered"]
+[connection signal="pressed" from="InputPopup/SubmitButton" to="." method="_on_SubmitButton_pressed"]
