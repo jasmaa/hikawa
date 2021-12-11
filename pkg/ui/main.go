@@ -160,34 +160,37 @@ func (p *Main) navigatePage(url string, shouldPushHistory bool) string {
 
 	if err != nil {
 		content.SetBbcode(err.Error())
+		if shouldPushHistory {
+			p.history.Push(url)
+		}
 		return url
-	} else {
-		if clientResp.Response.Header.Status == gemini.STATUS_SUCCESS {
-			if _, ok := clientResp.MimeTypes["text/gemini"]; ok {
-				contentBbcode := gemtext.ConvertToBbcode(clientResp.Response.Body)
-				content.SetBbcode(contentBbcode)
-			} else {
-				content.SetBbcode(fmt.Sprintf("cannot display MIME type: %s", clientResp.Response.Header.Meta))
-			}
-		} else if clientResp.Response.Header.Status == gemini.STATUS_INPUT {
-			inputPopup := gdnative.NewPopupWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup")).GetOwnerObject())
-			question := gdnative.NewLabelWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/Question")).GetOwnerObject())
-			promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
-			question.SetText(clientResp.Response.Header.Meta)
-			promptBar.Clear()
-			inputPopup.PopupCentered(gdnative.NewVector2(400, 200))
-		} else {
-			content.SetBbcode(fmt.Sprintf("[%d] %s", clientResp.Response.Header.Status, clientResp.Response.Header.Meta))
-		}
-
-		if clientResp.Response.Header.Status != gemini.STATUS_INPUT &&
-			clientResp.Response.Header.Status != gemini.STATUS_SENSITIVE_INPUT &&
-			shouldPushHistory {
-			p.history.Push(clientResp.Url)
-		}
-
-		return clientResp.Url
 	}
+
+	if clientResp.Response.Header.Status == gemini.STATUS_SUCCESS {
+		if _, ok := clientResp.MimeTypes["text/gemini"]; ok {
+			contentBbcode := gemtext.ConvertToBbcode(clientResp.Response.Body)
+			content.SetBbcode(contentBbcode)
+		} else {
+			content.SetBbcode(fmt.Sprintf("cannot display MIME type: %s", clientResp.Response.Header.Meta))
+		}
+	} else if clientResp.Response.Header.Status == gemini.STATUS_INPUT {
+		inputPopup := gdnative.NewPopupWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup")).GetOwnerObject())
+		question := gdnative.NewLabelWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/Question")).GetOwnerObject())
+		promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
+		question.SetText(clientResp.Response.Header.Meta)
+		promptBar.Clear()
+		inputPopup.PopupCentered(gdnative.NewVector2(400, 200))
+	} else {
+		content.SetBbcode(fmt.Sprintf("[%d] %s", clientResp.Response.Header.Status, clientResp.Response.Header.Meta))
+	}
+
+	if clientResp.Response.Header.Status != gemini.STATUS_INPUT &&
+		clientResp.Response.Header.Status != gemini.STATUS_SENSITIVE_INPUT &&
+		shouldPushHistory {
+		p.history.Push(clientResp.Url)
+	}
+
+	return clientResp.Url
 }
 
 func (p *Main) setNavigationButtons() {
@@ -195,4 +198,15 @@ func (p *Main) setNavigationButtons() {
 	backButton.SetDisabled(!p.history.CanGoBack())
 	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/ForwardButton")).GetOwnerObject())
 	forwardButton.SetDisabled(!p.history.CanGoForward())
+}
+
+func (p *Main) setEnableNavPanel(enabled bool) {
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
+	searchButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchButton")).GetOwnerObject())
+	backButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/BackButton")).GetOwnerObject())
+	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/ForwardButton")).GetOwnerObject())
+	searchBar.SetEditable(enabled)
+	searchButton.SetDisabled(!enabled)
+	backButton.SetDisabled(!enabled)
+	forwardButton.SetDisabled(!enabled)
 }
