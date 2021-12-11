@@ -24,11 +24,11 @@ type Response struct {
 
 // Request requests with a url and returns a Response.
 func Request(requestUrl string) (*Response, error) {
-
 	u, err := url.ParseRequestURI(requestUrl)
 	if err != nil {
 		return nil, err
 	}
+	u.RawQuery = url.PathEscape(u.RawQuery)
 
 	var host, port string
 	hostport := strings.Split(u.Host, ":")
