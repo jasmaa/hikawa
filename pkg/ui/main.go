@@ -75,9 +75,14 @@ func (p *Main) OnContentMetaClicked(meta string) {
 			return
 		}
 		u, _ := url.Parse(currentUrl)
-		metaUrl, _ := url.Parse(meta)
-		u.Path = path.Join(u.Path, metaUrl.Path)
-		u.RawQuery = metaUrl.RawQuery
+		if len(target.Path) > 0 && target.Path[0] == '/' {
+			// Root url
+			u.Path = target.Path
+		} else {
+			// Local url
+			u.Path = path.Join(u.Path, target.Path)
+		}
+		u.RawQuery = target.RawQuery
 		targetUrl = u.String()
 	} else {
 		switch target.Scheme {
