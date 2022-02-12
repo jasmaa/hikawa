@@ -46,23 +46,15 @@ func (p *Main) Ready() {
 
 func (p *Main) OnSearchBarTextEntered(newText string) {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	newUrl := p.navigatePage(searchBar.GetText(), true)
-	searchBar.SetText(newUrl)
-	searchBar.ReleaseFocus()
-	p.setNavigationButtons()
+	p.loadPage(searchBar.GetText(), true)
 }
 
 func (p *Main) OnSearchButtonPressed() {
 	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	newUrl := p.navigatePage(searchBar.GetText(), true)
-	searchBar.SetText(newUrl)
-	searchBar.ReleaseFocus()
-	p.setNavigationButtons()
+	p.loadPage(searchBar.GetText(), true)
 }
 
 func (p *Main) OnContentMetaClicked(meta string) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-
 	currentUrl, err := p.history.GetCurrentUrl()
 	if err != nil {
 		return
@@ -71,36 +63,25 @@ func (p *Main) OnContentMetaClicked(meta string) {
 	if err != nil {
 		return
 	}
-
-	newUrl := p.navigatePage(targetUrl, true)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	p.loadPage(targetUrl, true)
 }
 
 func (p *Main) OnBackButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-
 	err := p.history.GoBack()
 	if err != nil {
 		return
 	}
 	currentUrl, _ := p.history.GetCurrentUrl()
-	newUrl := p.navigatePage(currentUrl, false)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	p.loadPage(currentUrl, false)
 }
 
 func (p *Main) OnForwardButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-
 	err := p.history.GoForward()
 	if err != nil {
 		return
 	}
 	currentUrl, _ := p.history.GetCurrentUrl()
-	newUrl := p.navigatePage(currentUrl, false)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	p.loadPage(currentUrl, false)
 }
 
 func (p *Main) OnSubmitButtonPressed() {
@@ -111,9 +92,7 @@ func (p *Main) OnSubmitButtonPressed() {
 	inputPopup.Hide()
 	u, _ := url.Parse(searchBar.GetText())
 	u.RawQuery = promptBar.GetText()
-	newUrl := p.navigatePage(u.String(), true)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	p.loadPage(u.String(), true)
 }
 
 func (p *Main) OnPromptBarTextEntered(newText string) {
@@ -124,9 +103,7 @@ func (p *Main) OnPromptBarTextEntered(newText string) {
 	inputPopup.Hide()
 	u, _ := url.Parse(searchBar.GetText())
 	u.RawQuery = promptBar.GetText()
-	newUrl := p.navigatePage(u.String(), true)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	p.loadPage(u.String(), true)
 }
 
 func (p *Main) OnClassRegistered(e gdnative.ClassRegisteredEvent) {
@@ -191,6 +168,23 @@ func (p *Main) navigatePage(url string, shouldPushHistory bool) string {
 	}
 
 	return clientResp.Url
+}
+
+func (p *Main) loadPage(targetUrl string, shouldPushHistory bool) {
+	statusLabel := gdnative.NewLabelWithOwner(p.GetNode(gdnative.NewNodePath("StatusPanel/StatusLabel")).GetOwnerObject())
+	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
+
+	statusLabel.SetText("Loading...")
+	p.setEnableNavPanel(false)
+
+	go func() {
+		newUrl := p.navigatePage(targetUrl, shouldPushHistory)
+		searchBar.SetText(newUrl)
+		searchBar.ReleaseFocus()
+		p.setEnableNavPanel(true)
+		p.setNavigationButtons()
+		statusLabel.SetText("Done.")
+	}()
 }
 
 func (p *Main) setNavigationButtons() {
