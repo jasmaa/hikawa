@@ -98,7 +98,7 @@ func (c *Client) NavigatePage(rawurl string) (*ClientResponse, error) {
 			time.Sleep(100 * time.Millisecond)
 		}
 
-		if tries >= c.MaxRetries {
+		if tries-1 >= c.MaxRetries {
 			resChan <- result{
 				Err: errors.New("exceeded maximum number of retries"),
 			}
