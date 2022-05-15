@@ -1,9 +1,8 @@
 build:
-	go run mage.go -v build
+	go build -ldflags "-s -w -H=windowsgui -extldflags=-static" cmd/main.go
 
 test:
 	go test ./...
 
 clean:
-	go run mage.go -v clean
-	rm *.pck *.exe
+	rm *.exe

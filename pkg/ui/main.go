@@ -5,65 +5,46 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/godot-go/godot-go/pkg/gdnative"
-	"github.com/godot-go/godot-go/pkg/log"
+	g "github.com/AllenDang/giu"
 	"github.com/jasmaa/hikawa/pkg/browsing"
 	"github.com/jasmaa/hikawa/pkg/gemini"
 	"github.com/jasmaa/hikawa/pkg/gemtext"
 )
 
-const VERSION = "0.1.0"
+var (
+	searchText              string
+	inputText               string
+	content                 string
+	isBackButtonDisabled    bool
+	isForwardButtonDisabled bool
+	isSearchButtonDisabled  bool
+	isInputMode             bool
+	client                  gemini.Client
+	history                 browsing.History
+)
 
-type Main struct {
-	gdnative.NodeImpl
-	gdnative.UserDataIdentifiableImpl
-
-	client  gemini.Client
-	history browsing.History
-}
-
-func (p *Main) ClassName() string {
-	return "Main"
-}
-
-func (p *Main) BaseClass() string {
-	return "Control"
-}
-
-func (p *Main) Init() {
-}
-
-func (p *Main) Ready() {
-	p.client = gemini.Client{
+func init() {
+	searchText = "gemini://gemini.circumlunar.space/"
+	isBackButtonDisabled = true
+	isForwardButtonDisabled = true
+	isSearchButtonDisabled = false
+	isInputMode = false
+	client = gemini.Client{
 		Timeout: 3 * time.Second,
 	}
-	p.history = browsing.NewHistory()
-	p.setNavigationButtons()
-	versionLabel := gdnative.NewLabelWithOwner(p.GetNode(gdnative.NewNodePath("StatusPanel/VersionLabel")).GetOwnerObject())
-	versionLabel.SetText(fmt.Sprintf("v%s", VERSION))
-	log.Info("Browser ready")
 }
 
-func (p *Main) OnSearchBarTextEntered(newText string) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	newUrl := p.navigatePage(searchBar.GetText(), true)
-	searchBar.SetText(newUrl)
-	searchBar.ReleaseFocus()
-	p.setNavigationButtons()
+func onSubmitSearch() {
+	setLoading()
+	go func() {
+		newUrl := navigatePage(searchText, true)
+		searchText = newUrl
+		setNavigationButtons()
+	}()
 }
 
-func (p *Main) OnSearchButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	newUrl := p.navigatePage(searchBar.GetText(), true)
-	searchBar.SetText(newUrl)
-	searchBar.ReleaseFocus()
-	p.setNavigationButtons()
-}
-
-func (p *Main) OnContentMetaClicked(meta string) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-
-	currentUrl, err := p.history.GetCurrentUrl()
+func onContentMetaClicked(meta string) {
+	currentUrl, err := history.GetCurrentUrl()
 	if err != nil {
 		return
 	}
@@ -72,141 +53,142 @@ func (p *Main) OnContentMetaClicked(meta string) {
 		return
 	}
 
-	newUrl := p.navigatePage(targetUrl, true)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
-}
-
-func (p *Main) OnBackButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-
-	err := p.history.GoBack()
+	parsedTargetUrl, err := url.Parse(targetUrl)
 	if err != nil {
 		return
 	}
-	currentUrl, _ := p.history.GetCurrentUrl()
-	newUrl := p.navigatePage(currentUrl, false)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+
+	targetScheme := parsedTargetUrl.Scheme
+	if targetScheme == "http" || targetScheme == "https" {
+		g.OpenURL(targetUrl)
+	} else {
+		setLoading()
+		go func() {
+			newUrl := navigatePage(targetUrl, true)
+			searchText = newUrl
+			setNavigationButtons()
+			g.Update()
+		}()
+	}
 }
 
-func (p *Main) OnForwardButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-
-	err := p.history.GoForward()
+func onBackButtonPressed() {
+	err := history.GoBack()
 	if err != nil {
 		return
 	}
-	currentUrl, _ := p.history.GetCurrentUrl()
-	newUrl := p.navigatePage(currentUrl, false)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+
+	setLoading()
+	go func() {
+		currentUrl, _ := history.GetCurrentUrl()
+		newUrl := navigatePage(currentUrl, false)
+		searchText = newUrl
+		setNavigationButtons()
+		g.Update()
+	}()
 }
 
-func (p *Main) OnSubmitButtonPressed() {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	inputPopup := gdnative.NewPopupWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup")).GetOwnerObject())
-	promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
+func onForwardButtonPressed() {
+	err := history.GoForward()
+	if err != nil {
+		return
+	}
 
-	inputPopup.Hide()
-	u, _ := url.Parse(searchBar.GetText())
-	u.RawQuery = promptBar.GetText()
-	newUrl := p.navigatePage(u.String(), true)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	setLoading()
+	go func() {
+		currentUrl, _ := history.GetCurrentUrl()
+		newUrl := navigatePage(currentUrl, false)
+		searchText = newUrl
+		setNavigationButtons()
+		g.Update()
+	}()
 }
 
-func (p *Main) OnPromptBarTextEntered(newText string) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	inputPopup := gdnative.NewPopupWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup")).GetOwnerObject())
-	promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
+func onSubmitInput() {
+	u, _ := url.Parse(searchText)
+	u.RawQuery = inputText
 
-	inputPopup.Hide()
-	u, _ := url.Parse(searchBar.GetText())
-	u.RawQuery = promptBar.GetText()
-	newUrl := p.navigatePage(u.String(), true)
-	searchBar.SetText(newUrl)
-	p.setNavigationButtons()
+	setLoading()
+	go func() {
+		newUrl := navigatePage(u.String(), true)
+		searchText = newUrl
+		inputText = ""
+		setNavigationButtons()
+	}()
 }
 
-func (p *Main) OnClassRegistered(e gdnative.ClassRegisteredEvent) {
-	// methods
-	e.RegisterMethod("_ready", "Ready")
-	e.RegisterMethod("_on_SearchButton_pressed", "OnSearchButtonPressed")
-	e.RegisterMethod("_on_SearchBar_text_entered", "OnSearchBarTextEntered")
-	e.RegisterMethod("_on_Content_meta_clicked", "OnContentMetaClicked")
-	e.RegisterMethod("_on_BackButton_pressed", "OnBackButtonPressed")
-	e.RegisterMethod("_on_ForwardButton_pressed", "OnForwardButtonPressed")
-	e.RegisterMethod("_on_SubmitButton_pressed", "OnSubmitButtonPressed")
-	e.RegisterMethod("_on_PromptBar_text_entered", "OnPromptBarTextEntered")
-}
-
-func NewMainWithOwner(owner *gdnative.GodotObject) Main {
-	inst := gdnative.GetCustomClassInstanceWithOwner(owner).(*Main)
-	return *inst
-}
-
-func init() {
-	gdnative.RegisterInitCallback(func() {
-		gdnative.RegisterClass(&Main{})
-	})
-}
-
-func (p *Main) navigatePage(url string, shouldPushHistory bool) string {
-	content := gdnative.NewRichTextLabelWithOwner(p.GetNode(gdnative.NewNodePath("Content")).GetOwnerObject())
-	defer content.ScrollToLine(0)
-
-	clientResp, err := p.client.NavigatePage(url)
+func navigatePage(rawurl string, shouldPushHistory bool) string {
+	isInputMode = false
+	clientResp, err := client.NavigatePage(rawurl)
 
 	if err != nil {
-		content.SetBbcode(err.Error())
+		content = err.Error()
 		if shouldPushHistory {
-			p.history.Push(url)
+			history.Push(rawurl)
 		}
-		return url
+		return rawurl
 	}
 
 	if clientResp.Response.Header.Status == gemini.STATUS_SUCCESS {
 		if _, ok := clientResp.MimeTypes["text/gemini"]; ok {
-			contentBbcode := gemtext.ConvertToBbcode(clientResp.Response.Body)
-			content.SetBbcode(contentBbcode)
+			content = gemtext.ConvertToMarkdown(clientResp.Response.Body)
 		} else {
-			content.SetBbcode(fmt.Sprintf("cannot display MIME type: %s", clientResp.Response.Header.Meta))
+			content = fmt.Sprintf("cannot display MIME type: %s", clientResp.Response.Header.Meta)
 		}
 	} else if clientResp.Response.Header.Status == gemini.STATUS_INPUT {
-		inputPopup := gdnative.NewPopupWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup")).GetOwnerObject())
-		question := gdnative.NewLabelWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/Question")).GetOwnerObject())
-		promptBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("InputPopup/PromptBar")).GetOwnerObject())
-		question.SetText(clientResp.Response.Header.Meta)
-		promptBar.Clear()
-		inputPopup.PopupCentered(gdnative.NewVector2(400, 200))
+		isInputMode = true
 	} else {
-		content.SetBbcode(fmt.Sprintf("[%d] %s", clientResp.Response.Header.Status, clientResp.Response.Header.Meta))
+		content = fmt.Sprintf("[%d] %s", clientResp.Response.Header.Status, clientResp.Response.Header.Meta)
 	}
 
-	if clientResp.Response.Header.Status != gemini.STATUS_INPUT &&
-		clientResp.Response.Header.Status != gemini.STATUS_SENSITIVE_INPUT &&
-		shouldPushHistory {
-		p.history.Push(clientResp.Url)
+	if shouldPushHistory {
+		history.Push(clientResp.Url)
 	}
 
 	return clientResp.Url
 }
 
-func (p *Main) setNavigationButtons() {
-	backButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/BackButton")).GetOwnerObject())
-	backButton.SetDisabled(!p.history.CanGoBack())
-	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/ForwardButton")).GetOwnerObject())
-	forwardButton.SetDisabled(!p.history.CanGoForward())
+func setNavigationButtons() {
+	isBackButtonDisabled = !history.CanGoBack()
+	isForwardButtonDisabled = !history.CanGoForward()
+	isSearchButtonDisabled = false
 }
 
-func (p *Main) setEnableNavPanel(enabled bool) {
-	searchBar := gdnative.NewLineEditWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchBar")).GetOwnerObject())
-	searchButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/SearchButton")).GetOwnerObject())
-	backButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/BackButton")).GetOwnerObject())
-	forwardButton := gdnative.NewButtonWithOwner(p.GetNode(gdnative.NewNodePath("NavPanel/ForwardButton")).GetOwnerObject())
-	searchBar.SetEditable(enabled)
-	searchButton.SetDisabled(!enabled)
-	backButton.SetDisabled(!enabled)
-	forwardButton.SetDisabled(!enabled)
+func setLoading() {
+	content = "Loading..."
+	isBackButtonDisabled = true
+	isForwardButtonDisabled = true
+	isSearchButtonDisabled = true
+}
+
+func Loop() {
+	var contentWidget g.Widget
+	if isInputMode {
+		contentWidget = g.Row(
+			g.InputText(&inputText),
+			g.Event().OnKeyPressed(g.KeyEnter, onSubmitInput),
+			g.Button("Submit").OnClick(onSubmitInput),
+		)
+	} else {
+		contentWidget = g.Markdown(&content).OnLink(func(url string) {
+			go onContentMetaClicked(url)
+		})
+	}
+
+	g.SingleWindow().Layout(
+		g.Table().Rows(
+			g.TableRow(
+				g.Row(
+					g.Button("<").OnClick(onBackButtonPressed).Disabled(isBackButtonDisabled),
+					g.Button(">").OnClick(onForwardButtonPressed).Disabled(isForwardButtonDisabled),
+					g.InputText(&searchText),
+					g.Event().OnKeyPressed(g.KeyEnter, onSubmitSearch),
+					g.Button("Go").OnClick(onSubmitSearch).Disabled(isSearchButtonDisabled),
+				),
+			),
+			g.TableRow(
+				contentWidget,
+			),
+		).Freeze(1, 1),
+	)
 }

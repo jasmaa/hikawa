@@ -1,14 +1,20 @@
 # Hikawa
 
-A simple Gemini graphical browser in Go and Godot.
+A simple Gemini graphical browser in Go.
+
+![Hikawa screenshot](docs/screenshot.png)
 
 ## Development
 
-- Install [gcc](https://jmeubank.github.io/tdm-gcc/).
-- Install [Godot game engine](https://godotengine.org/).
-- Set `GODOT_BIN` to Godot executable and ensure Godot executable is in path.
-- Build with `make`.
-- Run Godot in directory.
+Install [tdm-gcc](https://jmeubank.github.io/tdm-gcc/) and add `/bin` to path.
+
+Build and run with:
+
+```
+make
+
+./main
+```
 
 ## Testing
 
