@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Fix parsing when gemtext has CRLF newlines
+- Fix slow loading bug for address and input bar submit
+- Add max retries and redirects to client
 
 ## [1.0.0] - 2022-05-14
 ### Added

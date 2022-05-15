@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"net/url"
-	"time"
 
 	g "github.com/AllenDang/giu"
 	"github.com/jasmaa/hikawa/pkg/browsing"
@@ -29,9 +28,7 @@ func init() {
 	isForwardButtonDisabled = true
 	isSearchButtonDisabled = false
 	isInputMode = false
-	client = gemini.Client{
-		Timeout: 3 * time.Second,
-	}
+	client = gemini.MakeClient()
 }
 
 func onSubmitSearch() {
@@ -40,6 +37,7 @@ func onSubmitSearch() {
 		newUrl := navigatePage(searchText, true)
 		searchText = newUrl
 		setNavigationButtons()
+		g.Update()
 	}()
 }
 
@@ -114,6 +112,7 @@ func onSubmitInput() {
 		searchText = newUrl
 		inputText = ""
 		setNavigationButtons()
+		g.Update()
 	}()
 }
 
