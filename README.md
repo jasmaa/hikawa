@@ -6,7 +6,7 @@ A simple Gemini graphical browser in Go.
 
 ## Development
 
-Install [tdm-gcc](https://jmeubank.github.io/tdm-gcc/) and add `/bin` to path.
+Install [tdm-gcc](https://jmeubank.github.io/tdm-gcc/) and add binaries to path.
 
 Build and run with:
 
