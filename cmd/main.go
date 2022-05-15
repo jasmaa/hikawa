@@ -9,7 +9,7 @@ import (
 	"github.com/jasmaa/hikawa/pkg/ui"
 )
 
-const VERSION = "1.0.0"
+const VERSION = "1.1.0"
 
 func getImageFromFilePath(filePath string) (image.Image, error) {
 	f, err := os.Open(filePath)
