@@ -7,6 +7,7 @@ import (
 // ConvertToMarkdown converts gemtext to Dear ImGui markdown.
 // https://github.com/juliettef/imgui_markdown
 func ConvertToMarkdown(text string) string {
+	text = strings.ReplaceAll(text, "\r\n", "\n")
 	gemtextList := strings.Split(text, "\n")
 	mdList := make([]string, 0)
 	isPreformatMode := false

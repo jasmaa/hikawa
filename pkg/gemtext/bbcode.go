@@ -6,6 +6,7 @@ import (
 
 // ConvertToBbcode converts gemtext to bbcode.
 func ConvertToBbcode(text string) string {
+	text = strings.ReplaceAll(text, "\r\n", "\n")
 	gemtextList := strings.Split(text, "\n")
 	bbcodeList := make([]string, 0)
 	isPreformatMode := false
