@@ -1,5 +1,5 @@
 build:
-	go build cmd/main.go
+	go build -ldflags "-s -w -H=windowsgui -extldflags=-static" cmd/main.go
 
 test:
 	go test ./...

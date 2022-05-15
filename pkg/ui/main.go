@@ -53,13 +53,23 @@ func onContentMetaClicked(meta string) {
 		return
 	}
 
-	setLoading()
-	go func() {
-		newUrl := navigatePage(targetUrl, true)
-		searchText = newUrl
-		setNavigationButtons()
-		g.Update()
-	}()
+	parsedTargetUrl, err := url.Parse(targetUrl)
+	if err != nil {
+		return
+	}
+
+	targetScheme := parsedTargetUrl.Scheme
+	if targetScheme == "http" || targetScheme == "https" {
+		g.OpenURL(targetUrl)
+	} else {
+		setLoading()
+		go func() {
+			newUrl := navigatePage(targetUrl, true)
+			searchText = newUrl
+			setNavigationButtons()
+			g.Update()
+		}()
+	}
 }
 
 func onBackButtonPressed() {

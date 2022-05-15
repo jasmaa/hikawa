@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="hikawa.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.0975309"
+     inkscape:cx="70.613048"
+     inkscape:cy="191.79415"
+     inkscape:window-width="1536"
+     inkscape:window-height="801"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:4.38609;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
+       id="rect3718"
+       width="50"
+       height="50"
+       x="0"
+       y="0"
+       inkscape:export-filename="C:\Users\Jason\Documents\Go\hikawa\assets\icon.png"
+       inkscape:export-xdpi="130.048"
+       inkscape:export-ydpi="130.048" />
+    <rect
+       style="fill:#b2f3f2;fill-opacity:1;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
+       id="rect1154"
+       width="36.917007"
+       height="36.917007"
+       x="7.3866315"
+       y="5.8392849"
+       ry="4.8214288"
+       inkscape:export-filename="C:\Users\Jason\Documents\Go\hikawa\assets\icon.png"
+       inkscape:export-xdpi="130.048"
+       inkscape:export-ydpi="130.048" />
+    <path
+       sodipodi:type="star"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:11.3386;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke"
+       id="path890"
+       inkscape:flatsided="false"
+       sodipodi:sides="4"
+       sodipodi:cx="120.26997"
+       sodipodi:cy="207.73903"
+       sodipodi:r1="142.11388"
+       sodipodi:r2="46.422585"
+       sodipodi:arg1="0.85799762"
+       sodipodi:arg2="1.6433958"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 213.20586,315.2531 116.90268,254.03933 12.755907,300.67492 73.969675,204.37173 27.334086,100.22496 l 96.303184,61.21377 104.14677,-46.63559 -61.21377,96.30318 z"
+       transform="matrix(0.09466532,0.08200977,-0.08200977,0.09466532,25.620382,0.65374499)"
+       inkscape:transform-center-x="0.28968582"
+       inkscape:transform-center-y="0.11047893"
+       inkscape:export-filename="C:\Users\Jason\Documents\Go\hikawa\assets\icon.png"
+       inkscape:export-xdpi="130.048"
+       inkscape:export-ydpi="130.048" />
+    <path
+       sodipodi:type="star"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:11.3386;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke"
+       id="path890-1"
+       inkscape:flatsided="false"
+       sodipodi:sides="4"
+       sodipodi:cx="120.26997"
+       sodipodi:cy="207.73903"
+       sodipodi:r1="142.11388"
+       sodipodi:r2="52.99905"
+       sodipodi:arg1="0.85799762"
+       sodipodi:arg2="1.6433958"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       transform="matrix(0.0348353,0.02929724,-0.02929724,0.0348353,36.050952,5.274475)"
+       inkscape:transform-center-x="0.42086725"
+       inkscape:transform-center-y="-1.1487764"
+       d="M 213.20586,315.2531 116.42565,260.59847 12.755907,300.67492 67.410533,203.8947 27.334086,100.22496 124.1143,154.87959 227.78404,114.80314 173.12941,211.58335 Z"
+       inkscape:export-filename="C:\Users\Jason\Documents\Go\hikawa\assets\icon.png"
+       inkscape:export-xdpi="130.048"
+       inkscape:export-ydpi="130.048" />
+  </g>
+</svg>
